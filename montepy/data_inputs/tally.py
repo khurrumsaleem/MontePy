@@ -80,6 +80,19 @@ class Tally(DataInputAbstract, Numbered_MCNP_Object):
         pass
 
 
+
+class SurfaceTally(Tally):
+    _obj_type = (Surfaces, "surface")
+
+
+class CellTally(Tally):
+    _obj_type = (Cells, "cell")
+
+
+class CellFluxTally(CellTally):
+    _allowed_type = TallyType.CELL_FLUX
+
+
 class TallyGroup:
     __slots__ = {"_cells", "_old_numbers"}
 
@@ -120,3 +133,11 @@ class TallyGroup:
 
     def append(self, cell):
         self._cells.append(cell)
+
+
+TALLY_TYPE_CLASS_MAP = {
+    # TallyType.CURRENT: CurrentTally,
+    # TallyTpe.SURFACE_FLUX: SurfaceFluxTally,
+    TallyType.CELL_FLUX: CellFluxTally
+    # TODO
+}
