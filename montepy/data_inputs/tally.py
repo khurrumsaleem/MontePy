@@ -30,11 +30,12 @@ class Tally(DataInputAbstract, Numbered_MCNP_Object):
 
     __slots__ = {"_groups", "_type", "_number", "_old_number", "_include_total"}
 
-    def __init__(self, input=None):
-        self._cells = Cells()
+    def __init__(self, input=None, other_tally=None):
         self._old_number = None
         self._number = self._generate_default_node(int, -1)
         super().__init__(input)
+        if other_tally is not None:
+            self._from_other_tally(other_tally)
         if input:
             num = self._input_number
             self._old_number = copy.deepcopy(num)
@@ -48,6 +49,18 @@ class Tally(DataInputAbstract, Numbered_MCNP_Object):
             )
             self._groups = groups
             self._include_total = has_total
+
+    def _from_other_tally(self, other, deepcopy=False):
+        if other._type != self._allowed_type:
+            # todo
+            pass
+        for attr in {"_tree", "_old_number", "_number", "_groups", "_include_total"}:
+            setattr(self, attr, getattr(other, attr))
+
+    @classmethod
+    def parse_tally_input(cls, input):
+        base_tally = cls(input)
+        new_class = TALLY_TYPE_CLASS_MAP[base_tally._type]
 
     @staticmethod
     def _class_prefix():
