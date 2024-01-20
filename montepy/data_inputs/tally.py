@@ -8,6 +8,7 @@ from montepy.data_inputs.tally_type import TallyType
 from montepy.input_parser.tally_parser import TallyParser
 from montepy.input_parser import syntax_node
 from montepy.numbered_mcnp_object import Numbered_MCNP_Object
+from montepy.surface_collection import Surfaces
 from montepy.utilities import *
 
 _TALLY_TYPE_MODULUS = 10
@@ -92,6 +93,10 @@ class Tally(DataInputAbstract, Numbered_MCNP_Object):
         """
         pass
 
+    def update_pointers(self, data_inputs):
+        if self._problem is not None:
+            for group in self.groups:
+                group.update_pointers(self.problem, *self._obj_type)
 
 
 class SurfaceTally(Tally):
@@ -107,11 +112,12 @@ class CellFluxTally(CellTally):
 
 
 class TallyGroup:
-    __slots__ = {"_cells", "_old_numbers"}
+    __slots__ = {"_objs", "_old_numbers", "_obj_name"}
 
     def __init__(self, cells=None, nodes=None):
-        self._cells = montepy.cells.Cells()
+        self._cells = None
         self._old_numbers = []
+        self._obj_name = ""
 
     @staticmethod
     def parse_tally_specification(tally_spec):
@@ -121,7 +127,6 @@ class TallyGroup:
         buff = None
         has_total = False
         for node in tally_spec:
-            # TODO handle total
             if in_parens:
                 if node.value == ")":
                     in_parens = False
@@ -136,7 +141,14 @@ class TallyGroup:
                     buff = TallyGroup()
                     buff._append_node(node)
                 else:
-                    ret.append(TallyGroup(nodes=[node]))
+                    if (
+                        isinstance(node, syntax_node.ValueNode)
+                        and node.type == str
+                        and node.value.lower() == "t"
+                    ):
+                        has_total = True
+                    else:
+                        ret.append(TallyGroup(nodes=[node]))
         return (ret, has_total)
 
     def _append_node(self, node):
@@ -146,6 +158,17 @@ class TallyGroup:
 
     def append(self, cell):
         self._cells.append(cell)
+
+    def update_pointers(self, problem, ObjContainer, obj_name):
+        self._objs = ObjContainer()
+        obj_source = getattr(problem, f"{obj_name}s")
+        self._obj_name = obj_name
+        for number in self._older_numbers:
+            try:
+                self._objs.append(obj_source[number])
+            except KeyError:
+                # Todo
+                pass
 
 
 TALLY_TYPE_CLASS_MAP = {
