@@ -44,8 +44,8 @@ class TallyParser(DataParser):
     )
     def tally_numbers(self, p):
         if hasattr(p, "tally_numbers1"):
-            ret = p.tally_numbers1
-            for node in p.tally_numbers2.nodes:
+            ret = p.tally_numbers0
+            for node in p.tally_numbers1.nodes:
                 ret.append(node)
             return ret
         else:
