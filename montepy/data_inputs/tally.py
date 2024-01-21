@@ -115,7 +115,7 @@ class TallyGroup:
     __slots__ = {"_objs", "_old_numbers", "_obj_name"}
 
     def __init__(self, cells=None, nodes=None):
-        self._cells = None
+        self._objs = None
         self._old_numbers = []
         self._obj_name = ""
 
