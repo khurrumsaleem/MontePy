@@ -50,14 +50,3 @@ class TallyParser(DataParser):
             return ret
         else:
             return p[0]
-
-    @_(
-        "paren_phrase number_sequence paren_phrase",
-    )
-    def tally_group(self, p):
-        ret = syntax_node.ListNode("tally group")
-        ret.append(p[0])
-        for node in p.number_sequence.nodes:
-            ret.append(node)
-        ret.append(p[2])
-        return ret
