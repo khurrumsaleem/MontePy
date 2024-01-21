@@ -170,6 +170,7 @@ class MCNP_Parser(Parser, metaclass=MetaBuilder):
         "numerical_phrase",
         "shortcut_phrase",
         "number_sequence numerical_phrase",
+        "number_sequence paren_number_group",
         "number_sequence shortcut_phrase",
     )
     def number_sequence(self, p):
@@ -191,6 +192,17 @@ class MCNP_Parser(Parser, metaclass=MetaBuilder):
             else:
                 sequence.append(p[1])
         return sequence
+
+    @_(
+        "paren_phrase number_sequence paren_phrase",
+    )
+    def paren_number_group(self, p):
+        ret = syntax_node.ListNode("tally group")
+        ret.append(p[0])
+        for node in p.number_sequence.nodes:
+            ret.append(node)
+        ret.append(p[2])
+        return ret
 
     @_("number_phrase", "null_phrase")
     def numerical_phrase(self, p):

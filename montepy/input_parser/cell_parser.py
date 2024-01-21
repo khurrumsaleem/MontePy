@@ -169,12 +169,9 @@ class CellParser(MCNP_Parser):
     # note: this has global impact on number_sequence
     # support for fill card weirdness
     @_(
-        "number_sequence paren_phrase number_sequence paren_phrase",
-        "number_sequence paren_phrase number_sequence paren_phrase padding",
         'number_sequence ":" numerical_phrase',
         # support for TRCL syntax
-        "paren_phrase number_sequence paren_phrase",
-        "paren_phrase number_sequence paren_phrase padding",
+        "paren_number_group",
     )
     def number_sequence(self, p):
         if isinstance(p[0], syntax_node.PaddingNode):
