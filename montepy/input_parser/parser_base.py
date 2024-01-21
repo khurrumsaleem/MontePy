@@ -279,9 +279,13 @@ class MCNP_Parser(Parser, metaclass=MetaBuilder):
     @_('"("', '"(" padding', '")"', '")" padding')
     def paren_phrase(self, p):
         """ """
-        return self._flush_phrase(p, str)
+        ret = syntax_node.PaddingNode(p[0])
+        if "padding" in p:
+            for node in p.padding.nodes:
+                ret.append(node)
+        return ret
 
-    def _flush_phrase(self, p, token_type):
+    def _flush_phrase(self, p, token_type, never_pad=False):
         """
         Creates a ValueNode.
         """
@@ -289,7 +293,7 @@ class MCNP_Parser(Parser, metaclass=MetaBuilder):
             padding = p[1]
         else:
             padding = None
-        return syntax_node.ValueNode(p[0], token_type, padding)
+        return syntax_node.ValueNode(p[0], token_type, padding, never_pad)
 
     @_("SPACE", "DOLLAR_COMMENT", "COMMENT")
     def padding(self, p):
