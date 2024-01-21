@@ -276,6 +276,11 @@ class MCNP_Parser(Parser, metaclass=MetaBuilder):
         """
         return self._flush_phrase(p, str)
 
+    @_('"("', '"(" padding', '")"', '")" padding')
+    def paren_phrase(self, p):
+        """ """
+        return self._flush_phrase(p, str)
+
     def _flush_phrase(self, p, token_type):
         """
         Creates a ValueNode.

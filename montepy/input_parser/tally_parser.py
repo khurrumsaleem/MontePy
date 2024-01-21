@@ -27,11 +27,6 @@ class TallyParser(DataParser):
             "tally list", {"tally": p.tally_numbers, "end": text}
         )
 
-    @_('"("', '"(" padding', '")"', '")" padding')
-    def paren_phrase(self, p):
-        """ """
-        return self._flush_phrase(p, str)
-
     @_("PARTICLE", "PARTICLE padding")
     def end_phrase(self, p):
         """
