@@ -40,7 +40,7 @@ class TallyParser(DataParser):
     @_(
         "tally_numbers tally_numbers",
         "number_sequence",
-        "tally_group",
+        "paren_number_group",
     )
     def tally_numbers(self, p):
         if hasattr(p, "tally_numbers1"):

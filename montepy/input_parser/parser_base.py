@@ -194,7 +194,7 @@ class MCNP_Parser(Parser, metaclass=MetaBuilder):
         return sequence
 
     @_(
-        "paren_phrase number_sequence paren_phrase",
+        "open_paren_phrase number_sequence close_paren_phrase",
     )
     def paren_number_group(self, p):
         ret = syntax_node.ListNode("tally group")
@@ -288,8 +288,17 @@ class MCNP_Parser(Parser, metaclass=MetaBuilder):
         """
         return self._flush_phrase(p, str)
 
-    @_('"("', '"(" padding', '")"', '")" padding')
-    def paren_phrase(self, p):
+    @_('"("', '"(" padding')
+    def open_paren_phrase(self, p):
+        """ """
+        ret = syntax_node.PaddingNode(p[0])
+        if "padding" in p:
+            for node in p.padding.nodes:
+                ret.append(node)
+        return ret
+
+    @_('")"', '")" padding')
+    def close_paren_phrase(self, p):
         """ """
         ret = syntax_node.PaddingNode(p[0])
         if "padding" in p:
