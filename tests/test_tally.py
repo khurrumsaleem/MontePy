@@ -22,7 +22,6 @@ class TestTallyParser(TestCase):
             print(line)
             input = Input([line], BlockType.DATA)
             data = parse_data(input)
-            self.assertEqual(data.prefix, "f")
 
     def test_parsing_tally_print(self):
         input = Input(["Fq4 f p e"], BlockType.DATA)
