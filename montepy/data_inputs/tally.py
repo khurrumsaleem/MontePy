@@ -4,7 +4,9 @@ import copy
 import montepy
 from montepy.cells import Cells
 from montepy.data_inputs.data_input import DataInputAbstract
+from montepy.data_inputs.tally_group import CellTallyGroup, SurfaceTallyGroup
 from montepy.data_inputs.tally_type import TallyType
+from montepy.errors import *
 from montepy.input_parser.tally_parser import TallyParser
 from montepy.input_parser import syntax_node
 from montepy.numbered_mcnp_object import Numbered_MCNP_Object
@@ -28,6 +30,7 @@ class Tally(DataInputAbstract, Numbered_MCNP_Object):
 
     # todo type enforcement
     _parser = TallyParser()
+    _group_type = None
 
     __slots__ = {"_groups", "_type", "_number", "_old_number", "_include_total"}
 
@@ -100,11 +103,27 @@ class Tally(DataInputAbstract, Numbered_MCNP_Object):
 
 
 class SurfaceTally(Tally):
-    _obj_type = (Surfaces, "surface")
+    _group_type = SurfaceTallyGroup
+
+    def append_surface(self, surf):
+        self._append_obj(surf)
+
+    def surfaces(self):
+        for group in groups:
+            for surface in surfaces:
+                yield surface
 
 
 class CellTally(Tally):
-    _obj_type = (Cells, "cell")
+    _group_type = CellTallyGroup
+
+    def append_cell(self, cell):
+        self._append_obj(cell)
+
+    def cells(self):
+        for group in groups:
+            for cell in cells:
+                yield cell
 
 
 class CellFluxTally(CellTally):
