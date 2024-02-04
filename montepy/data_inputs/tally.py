@@ -40,31 +40,37 @@ class Tally(DataInputAbstract, Numbered_MCNP_Object):
         super().__init__(input)
         if other_tally is not None:
             self._from_other_tally(other_tally)
+            self._parse_tally_groups()
         if input:
             num = self._input_number
             self._old_number = copy.deepcopy(num)
             self._number = num
             try:
                 tally_type = TallyType(self.number % _TALLY_TYPE_MODULUS)
+                self._type = tally_type
             except ValueError as e:
                 raise MalformedInputEror(input, f"Tally Type provided not allowed: {e}")
-            groups, has_total = TallyGroup.parse_tally_specification(
-                self._tree["tally"]
-            )
-            self._groups = groups
-            self._include_total = has_total
+
+    def _parse_tally_groups(self):
+        groups, has_total = self._group_type.parse_tally_specification(
+            self._tree["tally"], self
+        )
+        self._groups = groups
+        self._include_total = has_total
 
     def _from_other_tally(self, other, deepcopy=False):
         if other._type != self._allowed_type:
             # todo
-            pass
+            assert False
         for attr in {"_tree", "_old_number", "_number", "_groups", "_include_total"}:
-            setattr(self, attr, getattr(other, attr))
+            setattr(self, attr, getattr(other, attr, None))
 
     @classmethod
     def parse_tally_input(cls, input):
         base_tally = cls(input)
         new_class = TALLY_TYPE_CLASS_MAP[base_tally._type]
+        ret = new_class(other_tally=base_tally)
+        return ret
 
     @staticmethod
     def _class_prefix():
