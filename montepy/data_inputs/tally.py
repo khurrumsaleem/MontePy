@@ -107,6 +107,37 @@ class Tally(DataInputAbstract, Numbered_MCNP_Object):
             for group in self.groups:
                 group.update_pointers(self.problem, *self._obj_type)
 
+    def _append_obj(self, obj):
+        if not isinstance(obj, self._group_type._obj_type):
+            raise TypeError(
+                f"Can only append {self._group_type._obj_name} to Tally. {obj} given"
+            )
+        new_group = self._group_type([obj])
+        self._groups.append(new_groups)
+
+    def append_group(self, objs):
+        if not isinstance(obj, (self._group_type, list)):
+            raise TypeError(
+                f"Can only append {self._group_type._obj_name} to Tally. {obj} given"
+            )
+        if isinstance(objs, list):
+            objs = self._group_type(objs)
+        self._groups.append(objs)
+
+    @make_prop_pointer("_groups", list)
+    def groups(self):
+        """ """
+        pass
+
+    def clone(self, new_type=None, new_number=None):
+        cls = type(self)
+        parent = cls.__base__
+        if not issubclass(new_type, parent):
+            raise ValueError(
+                f"Cannot convert a tally of type: {type(self)} to {new_type}"
+            )
+        # todo
+
 
 class SurfaceTally(Tally):
     _group_type = SurfaceTallyGroup
