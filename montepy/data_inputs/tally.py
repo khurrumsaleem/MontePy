@@ -167,69 +167,28 @@ class CellFluxTally(CellTally):
     _allowed_type = TallyType.CELL_FLUX
 
 
-class TallyGroup:
-    __slots__ = {"_objs", "_old_numbers", "_obj_name"}
+class EnergyDepTally(CellTally):
+    _allowed_type = TallyType.ENERGY_DEPOSITION
 
-    def __init__(self, cells=None, nodes=None):
-        self._objs = None
-        self._old_numbers = []
-        self._obj_name = ""
 
-    @staticmethod
-    def parse_tally_specification(tally_spec):
-        # TODO type enforcement
-        ret = []
-        in_parens = False
-        buff = None
-        has_total = False
-        for node in tally_spec:
-            if in_parens:
-                if node.value == ")":
-                    in_parens = False
-                    buff._append_node(node)
-                    ret.append(buff)
-                    buff = None
-                else:
-                    buff._append_node(node)
-            else:
-                if node.value == "(":
-                    in_parens = True
-                    buff = TallyGroup()
-                    buff._append_node(node)
-                else:
-                    if (
-                        isinstance(node, syntax_node.ValueNode)
-                        and node.type == str
-                        and node.value.lower() == "t"
-                    ):
-                        has_total = True
-                    else:
-                        ret.append(TallyGroup(nodes=[node]))
-        return (ret, has_total)
+class FissionDepTally(CellTally):
+    _allowed_type = TallyType.FISSION_ENERGY_DEPOSITION
 
-    def _append_node(self, node):
-        if not isinstance(node, (syntax_node.ValueNode, syntax_node.PaddingNode)):
-            raise ValueError(f"Can only append ValueNode. {node} given")
-        self._old_numbers.append(node)
 
-    def append(self, cell):
-        self._cells.append(cell)
+class CurrentTally(SurfaceTally):
+    _allowed_type = TallyType.CURRENT
 
-    def update_pointers(self, problem, ObjContainer, obj_name):
-        self._objs = ObjContainer()
-        obj_source = getattr(problem, f"{obj_name}s")
-        self._obj_name = obj_name
-        for number in self._older_numbers:
-            try:
-                self._objs.append(obj_source[number])
-            except KeyError:
-                # Todo
-                pass
+
+class SurfaceFluxTally(SurfaceTally):
+    _allowed_type = TallyType.SURFACE_FLUX
 
 
 TALLY_TYPE_CLASS_MAP = {
-    # TallyType.CURRENT: CurrentTally,
-    # TallyTpe.SURFACE_FLUX: SurfaceFluxTally,
-    TallyType.CELL_FLUX: CellFluxTally
+    TallyType.CURRENT: CurrentTally,
+    TallyType.SURFACE_FLUX: SurfaceFluxTally,
+    TallyType.CELL_FLUX: CellFluxTally,
+    TallyType.ENERGY_DEPOSITION: EnergyDepTally,
+    TallyType.FISSION_ENERGY_DEPOSITION: FissionDepTally,
     # TODO
+    # TODO What is a detector
 }
